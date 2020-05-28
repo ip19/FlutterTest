@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_listview_json/services/Follower.dart';
-import 'package:flutter_listview_json/services/User.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_listview_json/services/UserProfileService.dart';
 
 import '../services/User.dart';
 
@@ -14,27 +11,11 @@ class FollowersPage extends StatefulWidget {
 
 class _FollowersPageState extends State<FollowersPage> {
   List<Follower> follower = List<Follower>();
-  List<User> user = List<User>();
-
-  Future<List<Follower>> fetchFollowerData() async {
-    final login = 'igorsegallafa';
-    final url = 'https://api.github.com/users/' + login + '/followers';
-    final response = await http.get(url);
-
-    var followers = List<Follower>();
-
-    if (response.statusCode == 200) {
-      final followersJson = json.decode(response.body);
-      for (final followerJson in followersJson) {
-        followers.add(Follower.fromJson(followerJson));
-      }
-    }
-    return followers;
-  }
+  UserProfile userProfile = UserProfile();
 
   @override
   void initState() {
-    fetchFollowerData().then((value) {
+    userProfile.fetchFollowerData().then((value) {
       setState(() {
         follower.addAll(value);
       });
