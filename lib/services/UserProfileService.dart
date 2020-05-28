@@ -6,14 +6,14 @@ import 'User.dart';
 
 class UserProfile {
   Future<List<User>> fetchUserData() async {
-    var url = 'https://api.github.com/gists/public';
-    var response = await http.get(url);
+    final url = 'https://api.github.com/gists/public';
+    final response = await http.get(url);
 
-    var users = List<User>();
+    final users = List<User>();
 
     if (response.statusCode == 200) {
-      var usersJson = json.decode(response.body);
-      for (var userJson in usersJson) {
+      final usersJson = json.decode(response.body);
+      for (final userJson in usersJson) {
         users.add(User.fromJson(userJson));
       }
     }
