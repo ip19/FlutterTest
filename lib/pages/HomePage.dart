@@ -1,56 +1,40 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_listview_json/Follower.dart';
-import 'package:flutter_listview_json/User.dart';
+
+import 'FollowersPage.dart';
+import '../services/User.dart';
 import 'package:http/http.dart' as http;
 
-import 'User.dart';
-
-void main() => runApp(App());
-
-class App extends StatelessWidget {
+class HomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: Followers(),
-    );
-  }
+  _HomePageState createState() => _HomePageState();
 }
 
-class Followers extends StatefulWidget {
-  @override
-  _FollowersPageState createState() => _FollowersPageState();
-}
-
-class _FollowersPageState extends State<Followers> {
-  List<Follower> follower = List<Follower>();
+class _HomePageState extends State<HomePage> {
   List<User> user = List<User>();
 
-  Future<List<Follower>> fetchUserData() async {
-    var login = 'sfeuga';
-    var url = 'https://api.github.com/users/' + login + '/followers';
+  Future<List<User>> fetchUserData() async {
+    var url = 'https://api.github.com/gists/public';
     var response = await http.get(url);
 
-    var followers = List<Follower>();
+    var users = List<User>();
 
     if (response.statusCode == 200) {
-      var followersJson = json.decode(response.body);
-      for (var followerJson in followersJson) {
-        followers.add(Follower.fromJson(followerJson));
+      var usersJson = json.decode(response.body);
+      for (var userJson in usersJson) {
+        users.add(User.fromJson(userJson));
       }
     }
-    return followers;
+    return users;
   }
 
   @override
   void initState() {
     fetchUserData().then((value) {
       setState(() {
-        follower.addAll(value);
+        user.addAll(value);
       });
     });
     super.initState();
@@ -60,11 +44,17 @@ class _FollowersPageState extends State<Followers> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('GitHub Followers'),
+          title: Text('GitHub users'),
         ),
         body: ListView.builder(
           itemBuilder: (context, index) {
             return Card(
+                child: InkWell(
+              splashColor: Colors.green,
+              onTap: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => FollowersPage()));
+              },
               child: Padding(
                 padding: const EdgeInsets.only(
                     top: 50.0, bottom: 50.0, left: 20.0, right: 20.0),
@@ -72,7 +62,7 @@ class _FollowersPageState extends State<Followers> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     Text(
-                      follower[index].login,
+                      user[index].owner.login,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
@@ -80,15 +70,15 @@ class _FollowersPageState extends State<Followers> {
                       width: 90,
                       height: 90,
                       child: Image.network(
-                        follower[index].avatarUrl,
+                        user[index].owner.avatarUrl,
                       ),
                     ),
                   ],
                 ),
               ),
-            );
+            ));
           },
-          itemCount: follower.length,
+          itemCount: user.length,
         ));
   }
 }
