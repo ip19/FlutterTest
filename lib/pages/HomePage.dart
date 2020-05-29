@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_listview_json/services/UserProfileService.dart';
 import 'FollowersPage.dart';
-import '../services/User.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,14 +9,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  UserProfile userProfile = UserProfile();
-  List<User> user = List<User>();
+  List<UserProfile> userProfile = List<UserProfile>();
+  final UserProfileService userProfileService = UserProfileServiceImpl();
 
   @override
   void initState() {
-    userProfile.fetchUserData().then((value) {
+    userProfileService.getUserProfiles().then((value) {
       setState(() {
-        user.addAll(value);
+        userProfile.addAll(value);
       });
     });
     super.initState();
@@ -45,7 +44,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     Text(
-                      user[index].owner.login,
+                      userProfile[index].owner.login,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
@@ -53,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                       width: 90,
                       height: 90,
                       child: Image.network(
-                        user[index].owner.avatarUrl,
+                        userProfile[index].owner.avatar_url,
                       ),
                     ),
                   ],
@@ -61,7 +60,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ));
           },
-          itemCount: user.length,
+          itemCount: userProfile.length,
         ));
   }
 }

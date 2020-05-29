@@ -1,38 +1,64 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:codable/codable.dart';
+import 'package:flutter_listview_json/Network.dart';
 
-import 'Follower.dart';
-import 'User.dart';
+abstract class UserProfileService {
+  Future<List<UserProfile>> getUserProfiles();
+}
 
-class UserProfile {
-  Future<List<User>> fetchUserData() async {
-    final url = 'https://api.github.com/gists/public';
-    final response = await http.get(url);
+class UserProfileServiceImpl extends UserProfileService {
+  Future<List<UserProfile>> getUserProfiles() async {
+    return Network.request(
+            endpoint: "gists/public",
+            methodType: MethodType.GET,
+            entityType: UserProfileResponse())
+        .then((value) => value.data);
+  }
+}
 
-    final users = List<User>();
+class UserProfileResponse extends Coding {
+  List<UserProfile> data;
 
-    if (response.statusCode == 200) {
-      final usersJson = json.decode(response.body);
-      for (final userJson in usersJson) {
-        users.add(User.fromJson(userJson));
-      }
-    }
-    return users;
+  @override
+  void decode(KeyedArchive object) {
+    super.decode(object);
+    this.data = object.decodeObjects("data", () => UserProfile());
   }
 
-  Future<List<Follower>> fetchFollowerData() async {
-    final login = 'igorsegallafa';
-    final url = 'https://api.github.com/users/' + login + '/followers';
-    final response = await http.get(url);
+  @override
+  void encode(KeyedArchive object) {
+    object.encodeObjects("data", this.data);
+  }
+}
 
-    var followers = List<Follower>();
+class UserProfile extends Coding {
+  Owner owner;
 
-    if (response.statusCode == 200) {
-      final followersJson = json.decode(response.body);
-      for (final followerJson in followersJson) {
-        followers.add(Follower.fromJson(followerJson));
-      }
-    }
-    return followers;
+  @override
+  void decode(KeyedArchive object) {
+    super.decode(object);
+    this.owner = object.decodeObject("owner", () => Owner());
+  }
+
+  @override
+  void encode(KeyedArchive object) {
+    object.encode("owner", owner);
+  }
+}
+
+class Owner extends Coding {
+  String avatar_url;
+  String login;
+
+  @override
+  void decode(KeyedArchive object) {
+    super.decode(object);
+    avatar_url = object.decode("avatar_url");
+    login = object.decode("login");
+  }
+
+  @override
+  void encode(KeyedArchive object) {
+    object.encode("avatar_url", avatar_url);
+    object.encode("login", login);
   }
 }

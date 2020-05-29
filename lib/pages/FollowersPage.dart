@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_listview_json/services/Follower.dart';
-import 'package:flutter_listview_json/services/UserProfileService.dart';
-
-import '../services/User.dart';
+import 'package:flutter_listview_json/services/FollowerProfileService.dart';
 
 class FollowersPage extends StatefulWidget {
   @override
@@ -10,14 +7,15 @@ class FollowersPage extends StatefulWidget {
 }
 
 class _FollowersPageState extends State<FollowersPage> {
-  List<Follower> follower = List<Follower>();
-  UserProfile userProfile = UserProfile();
+  List<FollowerProfile> followerProfile = List<FollowerProfile>();
+  final FollowerProfileService followerProfileService =
+      FollowerProfileServiceImpl();
 
   @override
   void initState() {
-    userProfile.fetchFollowerData().then((value) {
+    followerProfileService.getFollowerProfiles().then((value) {
       setState(() {
-        follower.addAll(value);
+        followerProfile.addAll(value);
       });
     });
     super.initState();
@@ -39,7 +37,7 @@ class _FollowersPageState extends State<FollowersPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     Text(
-                      follower[index].login,
+                      followerProfile[index].login,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
@@ -47,7 +45,7 @@ class _FollowersPageState extends State<FollowersPage> {
                       width: 90,
                       height: 90,
                       child: Image.network(
-                        follower[index].avatarUrl,
+                        followerProfile[index].avatar_url,
                       ),
                     ),
                   ],
@@ -55,7 +53,7 @@ class _FollowersPageState extends State<FollowersPage> {
               ),
             );
           },
-          itemCount: follower.length,
+          itemCount: followerProfile.length,
         ));
   }
 }
